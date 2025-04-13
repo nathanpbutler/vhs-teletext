@@ -30,7 +30,7 @@ class VBIViewer(object):
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
         glutInitWindowSize(width,height)
-        glutCreateWindow(name)
+        glutCreateWindow(name.encode('utf-8'))
         self.set_title()
 
         glutDisplayFunc(self.display)
@@ -105,9 +105,21 @@ class VBIViewer(object):
             a = np.frombuffer(l._original_bytes, dtype=np.uint8)
             d = np.diff(a.astype(np.int16))
             md = np.mean(np.abs(d))
-            steps = np.floor(np.linspace(0, 2048 - 5, num=11)).astype(np.uint32)[[1, 5, 9]]
             s = np.sort(a)
-            print(md, s[steps])
+            # Calculate indices based on the actual size of s
+            size = s.size
+            if size > 0:
+                # Calculate indices for ~10%, 50%, 90% percentiles, ensuring they are within bounds
+                idx1 = min(max(0, int(round(size * 0.1))), size - 1)
+                idx2 = min(max(0, int(round(size * 0.5))), size - 1)
+                idx3 = min(max(0, int(round(size * 0.9))), size - 1)
+                # Use unique indices in case size is small and percentiles map to the same index
+                steps = np.unique([idx1, idx2, idx3]).astype(np.uint32)
+                print(md, s[steps])
+            else:
+                # Handle empty array case
+                print(md, "[] (Empty array)")
+
             sys.stdout.flush()
 
     def dumpline(self, x, y, teletext):
