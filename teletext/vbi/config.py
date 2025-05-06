@@ -98,6 +98,14 @@ class Config(object):
             'field_lines': 16,
             'field_range': range(0, 16),
         },
+        'saa7131-720': { # Half-width version of saa7131
+            'sample_rate': 135000000.0,
+            'line_length': 720,
+            'line_start_range': (0, 20),
+            'dtype': np.uint8,
+            'field_lines': 16,
+            'field_range': range(0, 16),
+        }
     }
 
     def __init__(self, card='bt8x8', **kwargs):
